@@ -141,12 +141,39 @@ class QA_Agent:
         except Exception as e:
             return f"Error creating file: {str(e)}"
 
+    def delete_file_from_current_directory(self, prompt):
+        current_directory = os.getcwd()
+
+        # Extract file name and extension using regex
+        match = re.search(r'delete\s+file\s+([^\s]+)', prompt, re.IGNORECASE)
+        if not match:
+            return "Please specify the file name in the format 'delete file <filename.extension>'."
+
+        file_name = match.group(1).strip()
+
+        # Ensure file name is not empty and valid
+        if not file_name:
+            return "File name cannot be empty."
+
+        # Construct the file path
+        file_path = os.path.join(current_directory, file_name)
+        if not os.path.exists(file_path):
+            return f"File {file_name} does not exist in the current directory."
+
+        try:
+            os.remove(file_path)
+            return f"File {file_name} deleted from the current directory."
+        except Exception as e:
+            return f"Error deleting file: {str(e)}"
+
     def agent_chat(self, usr_prompt):
         print(f"User prompt: {usr_prompt}")
         if "volume" in usr_prompt.lower() or "louder" in usr_prompt.lower() or "quieter" in usr_prompt.lower():
             return self.adjust_volume(usr_prompt)
         elif "create" in usr_prompt.lower() and "file" in usr_prompt.lower():
             return self.create_file_on_current_directory(usr_prompt)
+        elif "delete" in usr_prompt.lower() and "file" in usr_prompt.lower():
+            return self.delete_file_from_current_directory(usr_prompt)
         response = self.chat_model.invoke(
             {"input": usr_prompt},
                 config={
