@@ -6,5 +6,4 @@ langchain-core
 langchain-community
 pycaw
 comtypes
-ctypes
 requests
