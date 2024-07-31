@@ -23,7 +23,10 @@ Create a .env file in the root directory and add the necessary environment varia
 ```
 LLM_MODEL=phi3
 ```
-
+5. Install ollama and run command in cmd
+```
+ollama pull model_name
+```
 # Run the Application:
 1. Backend
 ```
