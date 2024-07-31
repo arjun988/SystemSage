@@ -1,6 +1,7 @@
 import json
 import os
 import platform
+import re
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -74,7 +75,7 @@ class QA_Agent:
         return (
             """
             You are my laptop assistant who will help me to operate the laptops through commands as well as
-            reponsible to provide me with updates
+            responsible to provide me with updates
             """
         )
 
@@ -114,10 +115,38 @@ class QA_Agent:
                 return f"Error adjusting volume on Linux: {e}"
         return "Command not recognized for volume control."
 
+    def create_file_on_current_directory(self, prompt):
+        current_directory = os.getcwd()
+
+        # Extract file name and extension using regex
+        match = re.search(r'create\s+file\s+([^\s]+)', prompt, re.IGNORECASE)
+        if not match:
+            return "Please specify the file name in the format 'create file <filename.extension>'."
+
+        file_name = match.group(1).strip()
+
+        # Ensure file name is not empty and valid
+        if not file_name:
+            return "File name cannot be empty."
+
+        # Check if file already exists
+        file_path = os.path.join(current_directory, file_name)
+        if os.path.exists(file_path):
+            return f"File {file_name} already exists in the current directory."
+
+        try:
+            with open(file_path, 'w') as file:
+                pass  # Create an empty file
+            return f"File {file_name} created in the current directory."
+        except Exception as e:
+            return f"Error creating file: {str(e)}"
+
     def agent_chat(self, usr_prompt):
         print(f"User prompt: {usr_prompt}")
         if "volume" in usr_prompt.lower() or "louder" in usr_prompt.lower() or "quieter" in usr_prompt.lower():
             return self.adjust_volume(usr_prompt)
+        elif "create" in usr_prompt.lower() and "file" in usr_prompt.lower():
+            return self.create_file_on_current_directory(usr_prompt)
         response = self.chat_model.invoke(
             {"input": usr_prompt},
                 config={
