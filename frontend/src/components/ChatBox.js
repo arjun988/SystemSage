@@ -5,9 +5,6 @@ const ChatBox = () => {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([
     { from: "assistant", text: "Hello! How can I help you today?" },
-    { from: "user", text: "I need information about your services." },
-    { from: "assistant", text: "Sure! What would you like to know?" },
-    { from: "user", text: "Can you tell me about your pricing?" },
   ]);
 
   const sendMessage = async () => {
