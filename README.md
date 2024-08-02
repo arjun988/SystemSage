@@ -49,9 +49,10 @@ Delete File: "Delete file example.txt"
 
 
 ## Run Ollama Server 
+```
 ollama run <model>
-
+```
 ## Stop Ollama (Windows)
-
+```
  Get-Process | Where-Object {$_.ProcessName -like '*ollama*'} | Stop-Process
-    
+```    
