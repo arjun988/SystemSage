@@ -46,4 +46,13 @@ Decrease Volume: "Decrease the volume"
 Create File: "Create file example.txt"
 3. Delete File:
 Delete File: "Delete file example.txt"
-    
+
+
+## Run Ollama Server 
+```
+ollama run <model>
+```
+## Stop Ollama (Windows)
+```
+ Get-Process | Where-Object {$_.ProcessName -like '*ollama*'} | Stop-Process
+```    
