@@ -41,6 +41,7 @@ const ChatBox = () => {
       <div className="space-y-2">
         {messages.map((message, index) => (
           <div
+            key={index} // Ensure the key is on the outermost div
             className={`w-full flex ${
               message.from === "assistant" ? "justify-start" : "justify-end"
             }`}
@@ -51,7 +52,6 @@ const ChatBox = () => {
                   ? "bg-zinc-200"
                   : "bg-blue-400 text-white"
               }`}
-              key={index}
             >
               {message.text}
             </div>
@@ -76,7 +76,7 @@ const ChatBox = () => {
             boxShadow:
               "rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px",
           }}
-          className="px-6 py-2 rounded-xl bg-green-600 hover:bg-green-500  text-white "
+          className="px-6 py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white"
           onClick={sendMessage}
         >
           SEND

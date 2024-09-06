@@ -13,6 +13,9 @@ from volume import adjust_volume
 from file import create_file_in_parent_directory, delete_file_from_parent_directory
 from package_checker import check_package_installed, check_version
 
+# Import the open_vscode function
+from CodeEditor.code_editor import open_vscode, create_folder_in_vscode,open_vscode_at_path
+
 load_dotenv()
 
 class QA_Agent:
@@ -67,41 +70,65 @@ class QA_Agent:
     def get_system_prompt(self):
         return (
             """
-            You are my laptop assistant who will help me to operate the laptops through commands as well as
-            responsible to provide me with updates
+            You are my laptop assistant who will help me to operate the laptop through commands and provide me with updates.
             """
         )
 
     def agent_chat(self, usr_prompt):
         print(f"User prompt: {usr_prompt}")
-        if "volume" in usr_prompt.lower() or "louder" in usr_prompt.lower() or "quieter" in usr_prompt.lower():
+        usr_prompt_lower = usr_prompt.lower()
+
+        if "open vscode" in usr_prompt_lower:
+            if "at" in usr_prompt_lower:
+                # Handle the case for opening VSCode at a specified path
+                path_match = re.search(r'open vscode at\s+(.+)', usr_prompt_lower, re.IGNORECASE)
+                if path_match:
+                    path = path_match.group(1).strip()
+                    return open_vscode_at_path(path)
+                else:
+                    return "Please specify the path in the format 'open vscode at <path>'."
+            else:
+                # Handle the case for opening VSCode in the current directory
+                return open_vscode()
+        elif "create folder" in usr_prompt_lower:
+            folder_name_match = re.search(r'create folder\s+([^\s]+)', usr_prompt_lower, re.IGNORECASE)
+            path_match = re.search(r'at\s+([^\s]+)', usr_prompt_lower, re.IGNORECASE)
+        
+            if folder_name_match:
+                folder_name = folder_name_match.group(1).strip()
+                folder_path = path_match.group(1).strip() if path_match else None
+                return create_folder_in_vscode(folder_name, folder_path)
+            else:
+                return "Please specify the folder name in the format 'create folder <folder_name> at <folder_path>'."
+        elif "volume" in usr_prompt_lower or "louder" in usr_prompt_lower or "quieter" in usr_prompt_lower:
             return adjust_volume(usr_prompt)
-        elif "create" in usr_prompt.lower() and "file" in usr_prompt.lower():
+        elif "create" in usr_prompt_lower and "file" in usr_prompt_lower:
             return create_file_in_parent_directory(usr_prompt)
-        elif "delete" in usr_prompt.lower() and "file" in usr_prompt.lower():
+        elif "delete" in usr_prompt_lower and "file" in usr_prompt_lower:
             return delete_file_from_parent_directory(usr_prompt)
-        elif "check package" in usr_prompt.lower():
+        elif "check package" in usr_prompt_lower:
             match = re.search(r'check package\s+([^\s]+)', usr_prompt, re.IGNORECASE)
             if match:
                 package_name = match.group(1).strip()
                 return check_package_installed(package_name)
             else:
                 return "Please specify the package name in the format 'check package <package_name>'."
-        elif "check version" in usr_prompt.lower():
+        elif "check version" in usr_prompt_lower:
             match = re.search(r'check version\s+([^\s]+)', usr_prompt, re.IGNORECASE)
             if match:
                 software_name = match.group(1).strip()
                 return check_version(software_name)
             else:
                 return "Please specify the software name in the format 'check version <software_name>'."
-        response = self.chat_model.invoke(
-            {"input": usr_prompt},
+        else:
+            response = self.chat_model.invoke(
+                {"input": usr_prompt},
                 config={
                     "configurable": {"session_id": "acc_setup"}
                 }
-        )
-        print(f"Model response: {response}")
-        return response
+            )
+            print(f"Model response: {response}")
+            return response
 
 app = Flask(__name__)
 CORS(app)

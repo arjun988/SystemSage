@@ -4,12 +4,13 @@ import re
 def create_file_in_parent_directory(prompt):
     parent_directory = os.path.dirname(os.getcwd())
 
-    # Extract file name and extension using regex
-    match = re.search(r'create\s+file\s+([^\s]+)', prompt, re.IGNORECASE)
+    # Extract file name and optional content using regex
+    match = re.search(r'create\s+file\s+([^\s]+)(?:\s+with\s+content\s+(.*))?', prompt, re.IGNORECASE)
     if not match:
-        return "Please specify the file name in the format 'create file <filename.extension>'."
+        return "Please specify the file name in the format 'create file <filename.extension>' or 'create file <filename.extension> with content <content>'."
 
     file_name = match.group(1).strip()
+    file_content = match.group(2).strip() if match.group(2) else ""
 
     # Ensure file name is not empty and valid
     if not file_name:
@@ -22,8 +23,8 @@ def create_file_in_parent_directory(prompt):
 
     try:
         with open(file_path, 'w') as file:
-            pass  # Create an empty file
-        return f"File {file_name} created in the parent directory."
+            file.write(file_content)  # Write the content to the file
+        return f"File {file_name} created in the parent directory with content: {file_content}" if file_content else f"Blank file {file_name} created in the parent directory."
     except Exception as e:
         return f"Error creating file: {str(e)}"
 
